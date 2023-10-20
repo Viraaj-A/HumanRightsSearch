@@ -1,9 +1,9 @@
 # ecthr_prediction
-The ECTHR Prediction App, a Flask/Python webapp, applies human centred design principles to the European Court of Human Rights to make human rights accessible to people that lack financial resources, do not have professional legal experience, or face accessibility issues. 
+The Human Rights Search (HRS), a Flask/Python webapp, applies human centred design principles to the European Court of Human Rights to make human rights accessible to people that lack financial resources, do not have professional legal experience, or face accessibility issues. 
 
-This app has three main functionalities: Issue Identifier, Predictor and Search. These functionalities will be explained further, below. All of these functionalities are in their beta phase and work to show their potential as a proof of concept. The planned improvements are below. 
+In short the  HRS applies 
 
-The ECTHR Prediction App will be built into the My-Rights.info application as it’s own unique tool.
+The Search functionality will be explained further, below. All of these functionalities are in their beta phase and work to show their potential as a proof of concept. The planned improvements are below. 
 
 The current beta of this app can be accessed here: https://walrus-app-9dcb8.ondigitalocean.app/
 
