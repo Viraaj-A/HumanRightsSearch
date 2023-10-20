@@ -1,11 +1,35 @@
-# ecthr_prediction
-The Human Rights Search (HRS), a Flask/Python webapp, applies human centred design principles to the European Court of Human Rights to make human rights accessible to people that lack financial resources, do not have professional legal experience, or face accessibility issues. 
+a# ecthr_prediction
+The Human Rights Search (HRS), a Flask/Python webapp, applies human centred design principles to the European Court of Human Rights to make human rights accessible to people that lack financial resources, do not have professional legal experience, or face accessibility issues.
 
-In short the  HRS applies 
+The specific Human Rights Search function, occurs after a user utilises the Issue Identifier and the Predictor.
 
-The Search functionality will be explained further, below. All of these functionalities are in their beta phase and work to show their potential as a proof of concept. The planned improvements are below. 
+Overall, the HRS utilises human-centered design principles and machine learning tools to create a new method of accessing typically inaccessible material, by:
+- Creating summaries of all legal cases (HSR Summaries);
+- Creating and implementing advanced search filters, wher eusers will be able to filter by labels by semantic searches (Advanced Filtering);
+- Present key aspects of cases (Alternative Display); and
+- Apply semantic searches against individual parts (facts/conclusions) of a case and the entire case.
+
+The HSR is in it's beta phase and is currently operating to show its potential as a proof of concept. 
 
 The current beta of this app can be accessed here: https://walrus-app-9dcb8.ondigitalocean.app/
+
+## Search 
+
+The current Search is built using FAISS indexing library for efficient similarity search and tested across three embedding systems:
+-	Word embedding - distilbert-base-uncased;
+-	Sentence embedding - sentence-transformers/multi-qa-mpnet-base-dot-v1; and 
+-	Sentence embedding - sentence-transformers/all-MiniLM-L6-v2.
+
+The indexes can be found in this folder [INSERT Folder Name]. Further data cleaning has to occur to create better results for the FAISS search. These issues exist due to the underlying data quality issues with the HUDOC database itself. Currently, we are utilising PostgreSQL’s full text search functionality. 
+
+We have chosen FAISS as it has outperformed many other search systems including ElasticSearch, refer to the following academic work – ‘Efficient comparison of sentence embeddings’. 
+
+### Search Improvements
+
+Convert the PostgreSQL full text search to semantic search with FAISS to provide contextualised results based on the query from the Issue Identifior. As of late 2922,  FAISS is outperforming ElasticSearch and other vector based search libraries, see the following for academic support to this finding: https://arxiv.org/pdf/2204.00820.pdf
+
+Further, there are numerous data labelling issues in the HUDOC database which is making the FAISS search ineffective. These data labelling issues will be cleaned in order to make the search effective. 
+
 
 ## Issue Identifier
 
@@ -15,6 +39,29 @@ The Issue Identifier takes a user prompt, which we assume will be in simple Engl
 
 The Issue Identifier works through the Chat GPT4 API, where the system prompt is:
 "Use the following steps to respond to user inputs. The user will input their facts that relate to a human rights violation in simple language. The output should be just a conversion of their input to legal writing, specifically, a legal formulation of 'facts'. In providing the output make no mention to: the date, any conclusion as to a human rights violation, and the reference to the person should always be "I”.”
+
+### Issue Identifier Improvements
+
+We will move from the Chat GPT4 API to seq2seq T5 model that reformulate a user's input query, which will be in simple language, to text that is styled as a legal fact. This model will be fine-tuned on the new dataset.
+
+To create training pairs for the model, we plan to utilise Chat GPT4 API, with various temperature settings, to create the necessary pairs. Specifically, we will input actual legal facts and ask the model to generate simple language versions of the facts. The training pairs will assist the model in converting simple language commands to legal styled facts. 
+
+The following provides an example of the way we would conduct the finetuning of the Issue Identifior: 
+
+For example, these are the facts of a randomly selected ECTHR case: 
+
+"The applicants complained that the authorities had failed to take adequate steps to protect the life of their family member, C.C., who had died of a drug overdose while being held in police custody."
+
+Using a system prompt of: "Please rephrase the following legal statement in very simple language for someone who isn't familiar with legal terms. Create 5 different formulations of the simple language." 
+
+The above provided:
+1. The family says the police didn't keep C.C. safe, and he died from taking too many drugs.
+2. C.C. took too many drugs and died while with the police. His family is upset about it.
+3. C.C. was with the police when he died from drugs. His family thinks the police could have helped.
+4. The police had C.C., and he died because of drugs. His family is sad and blames the police.
+5. While C.C. was in jail, he died from drugs. His family says it's the police's fault.
+
+The output provided is clearly written in simple language, i.e. by non-experts, and will assist in reformulating user queries. 
 
 ## Predictor
 A multilabel classifier, fine tuned on the Hugging Face: lex_glue, ecthr_a dataset, takes a user prompt and outputs a multi-label classifier for 10 labels. The dataset contains 11k rows that correspond to the 'facts' section of 11k cases from the European Court of Human Rights. The 10 labels relate to the following human rights articles pursuant to the European Convention on Human Rights:
@@ -47,53 +94,6 @@ To note, the RoBerta Model was chosen as all academic articles across the board,
 512 Token limit RoBerta Notebook (utilised): https://colab.research.google.com/drive/1T78zSPTc_yZII09Y7V3ucCRCG765a39m#scrollTo=oLw6b3M7l6gV
 Varying Length Bert Notebook (not utilised): https://colab.research.google.com/drive/1KqXLdZIAMSfkC6hj_eaEKZ6O71bYSY8m
 
-
-## Search 
-
-The current Search is built using FAISS indexing library for efficient similarity search and tested across three embedding systems:
--	Word embedding - distilbert-base-uncased;
--	Sentence embedding - sentence-transformers/multi-qa-mpnet-base-dot-v1; and 
--	Sentence embedding - sentence-transformers/all-MiniLM-L6-v2.
-
-The indexes can be found in this folder [INSERT Folder Name]. Further data cleaning has to occur to create better results for the FAISS search. These issues exist due to the underlying data quality issues with the HUDOC database itself. Currently, we are utilising PostgreSQL’s full text search functionality. 
-
-We have chosen FAISS as it has outperformed many other search systems including ElasticSearch, refer to the following academic work – ‘Efficient comparison of sentence embeddings’. 
-
-## Planned Improvements
-
-### Dataset 
-
-Firstly, we will expand the dataset from the Huggingface Publicly Available, lex_glue, dataset to the My-Rights Dataset. This will have the following benefits:
-- Expand the number of cases from 11k cases to roughly 30k cases;
-- Expand the number of human rights articles from 11 to all the substantive human rights articles of 24;
-- Account for numerous underlying labelling and text issues in the dataset that are due to HUDOC (the ECtHR's official database) itself;
-- Conduct NER and RegEx to remove spurious statistical patterns; and
-- Create balanced datasets for testing.  
-
-### Issue Identifier Improvements
-
-We will move from the Chat GPT4 API to seq2seq T5 model that reformulate a user's input query, which will be in simple language, to text that is styled as a legal fact. This model will be fine-tuned on the new dataset.
-
-To create training pairs for the model, we plan to utilise Chat GPT4 API, with various temperature settings, to create the necessary pairs. Specifically, we will input actual legal facts and ask the model to generate simple language versions of the facts. The training pairs will assist the model in converting simple language commands to legal styled facts. 
-
-The following provides an example of the way we would conduct the finetuning of the Issue Identifior: 
-
-For example, these are the facts of a randomly selected ECTHR case: 
-
-"The applicants complained that the authorities had failed to take adequate steps to protect the life of their family member, C.C., who had died of a drug overdose while being held in police custody."
-
-Using a system prompt of: "Please rephrase the following legal statement in very simple language for someone who isn't familiar with legal terms. Create 5 different formulations of the simple language." 
-
-The above provided:
-1. The family says the police didn't keep C.C. safe, and he died from taking too many drugs.
-2. C.C. took too many drugs and died while with the police. His family is upset about it.
-3. C.C. was with the police when he died from drugs. His family thinks the police could have helped.
-4. The police had C.C., and he died because of drugs. His family is sad and blames the police.
-5. While C.C. was in jail, he died from drugs. His family says it's the police's fault.
-
-The output provided is clearly written in simple language, i.e. by non-experts, and will assist in reformulating user queries. 
-
-
 ### Predictor Improvements
 
 The following improvements to the model are planned
@@ -102,13 +102,18 @@ The following improvements to the model are planned
 3. Utilise multiple different models to identify which model produces the best results at various sequence lenghts.
 4. Link the questionnaire from the My-Rights.info website to the Prediction Tool to create one pathway for a user to identify their legal situation without having the need to know the law.
 
-### Search Improvements
 
-Convert the PostgreSQL full text search to semantic search with FAISS to provide contextualised results based on the query from the Issue Identifior. As of late 2922,  FAISS is outperforming ElasticSearch and other vector based search libraries, see the following for academic support to this finding: https://arxiv.org/pdf/2204.00820.pdf
+## Dataset - Planned Improvements
 
-Further, there are numerous data labelling issues in the HUDOC database which is making the FAISS search ineffective. These data labelling issues will be cleaned in order to make the search effective. 
+Firstly, we will expand the dataset from the Huggingface Publicly Available, lex_glue, dataset to the My-Rights Dataset. This will have the following benefits:
+- Expand the number of cases from 11k cases to roughly 30k cases;
+- Expand the number of human rights articles from 11 to all the substantive human rights articles of 24;
+- Account for numerous underlying labelling and text issues in the dataset that are due to HUDOC (the ECtHR's official database) itself;
+- Conduct NER and RegEx to remove spurious statistical patterns; and
+- Create balanced datasets for testing.  
 
-## Accessibility Improvements
+
+## Accessibility - Planned Improvements
 
 The entire website will be improved to have the following accessibility principles incorporated:
 -	All text in the website will be written in simple and easily understood language;
