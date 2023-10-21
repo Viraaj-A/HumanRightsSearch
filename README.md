@@ -1,13 +1,12 @@
 a# ecthr_prediction
-The Human Rights Search (HRS), a Flask/Python webapp, applies human centred design principles to the European Court of Human Rights to make human rights accessible to people that lack financial resources, do not have professional legal experience, or face accessibility issues.
+The Human Rights Search (HRS), a Flask/Python webapp, applies human centred design principles to the European Court of Human Rights (ECHR) to make human rights accessible to people that lack financial resources, do not have professional legal experience, or face accessibility issues.
 
 The specific Human Rights Search function, occurs after a user utilises the Issue Identifier and the Predictor.
 
 Overall, the HRS utilises human-centered design principles and machine learning tools to create a new method of accessing typically inaccessible material, by:
 - Creating summaries of all legal cases (HSR Summaries);
-- Creating and implementing advanced search filters, wher eusers will be able to filter by labels by semantic searches (Advanced Filtering);
-- Present key aspects of cases (Alternative Display); and
-- Apply semantic searches against individual parts (facts/conclusions) of a case and the entire case.
+- Creating and implementing advanced search filters, where users will be able to filter by labels by semantic searches (Advanced Filtering); and
+- Present key aspects of cases (Alternative Display).
 
 The HSR is in it's beta phase and is currently operating to show its potential as a proof of concept. 
 
@@ -20,15 +19,39 @@ The current Search is built using FAISS indexing library for efficient similarit
 -	Sentence embedding - sentence-transformers/multi-qa-mpnet-base-dot-v1; and 
 -	Sentence embedding - sentence-transformers/all-MiniLM-L6-v2.
 
-The indexes can be found in this folder [INSERT Folder Name]. Further data cleaning has to occur to create better results for the FAISS search. These issues exist due to the underlying data quality issues with the HUDOC database itself. Currently, we are utilising PostgreSQL’s full text search functionality. 
+The indexes can be found in the 'faiss_index' folder. Further data cleaning has to occur to create better results for the FAISS search. These issues exist due to the underlying data quality issues with the HUDOC database itself. 
 
 We have chosen FAISS as it has outperformed many other search systems including ElasticSearch, refer to the following academic work – ‘Efficient comparison of sentence embeddings’. 
 
 ### Search Improvements
 
-Convert the PostgreSQL full text search to semantic search with FAISS to provide contextualised results based on the query from the Issue Identifior. As of late 2922,  FAISS is outperforming ElasticSearch and other vector based search libraries, see the following for academic support to this finding: https://arxiv.org/pdf/2204.00820.pdf
+The HSR will be improved in several respects. The following outlines the improvements and the process to build the improvements. 
 
-Further, there are numerous data labelling issues in the HUDOC database which is making the FAISS search ineffective. These data labelling issues will be cleaned in order to make the search effective. 
+1. HSR Summaries 
+
+Currently, the ECHR has provided summaries for a minority of all cases they published. The HSR will utilise the full case and summary as training pairs to finetune:
+
+- a T5 seq to seq model; or
+- BART.
+
+One of the above models will be chosen based on BLEU and ROUGE metrics, along side a human review. 
+
+After the model is finetunes, all cases will be ran through the model to create summaries. 
+
+2. Advanced Filtering
+
+By combining traditional database filtering with semantic search, HSR will offer a powerful and efficient search experience. The backend logic would be a combination of database operations and machine learning-based search. The frontend would provide an intuitive interface for users to select and apply filters as per their requirements. Overall it would include the following steps
+
+- Create further sentence embeddings for each section of a case (Facts, Conclusion, Summaries); and
+- Requisuite FAISS indices.
+
+3. Alternative Display
+
+Many current databases offer displays that fall short of user needs. For example, HUDOC's traditional setup makes it challenging for users to gauge a case's relevance to their specific concerns at a glance. The HSR addresses this gap, spotlighting the most crucial facets of a case. This approach empowers users to quickly scan cases, determining if they warrant a deeper read. Often, this cursory view may suffice for the research needed.
+
+While the Alternative Display isn't rooted in complex technology, its effectiveness lies in continuous refinement. We're committed to iterative feedback, actively engaging with both legal professionals and marginalized communities. This ensures we present the most pertinent information to our users.
+
+For a preview of how such information and search is displayed, please refer to the search function in My-Rights.info - https://my-rights.info/search/
 
 
 ## Issue Identifier
