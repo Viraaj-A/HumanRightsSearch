@@ -1,4 +1,4 @@
-a# ecthr_prediction
+# ecthr_prediction
 The Human Rights Search (HRS), a Flask/Python webapp, applies human centred design principles to the European Court of Human Rights (ECHR) to make human rights accessible to people that lack financial resources, do not have professional legal experience, or face accessibility issues.
 
 The specific Human Rights Search function, occurs after a user utilises the Issue Identifier and the Predictor.
